@@ -176,6 +176,8 @@ def predict_transaction(request):
 def get_all_riskscore(request):
     transactions = Riskscore.objects.all().values()
 
+    print("this is the riskscore respnse"+transactions)
+
 
     # data = serialize('json', transactions)
     
