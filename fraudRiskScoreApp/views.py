@@ -137,6 +137,11 @@ def predict_transaction(request):
             data = json.loads(request.body)
             customer_id = data['CustomerID']
             transaction_time = pd.to_datetime(data['Transaction Time'])
+            account_number = data['Account Number']
+            amount = data['Amount']
+            account_balance = data['Account Balance']
+            receiver_name = data['Receiver Name']
+            transactiontype = data['Transaction Type']
 
             # Load historical transactions from the database
             historical_transactions = get_historical_transactions()
@@ -161,6 +166,26 @@ def predict_transaction(request):
 
             # Make prediction
             prediction = loaded_model.predict(input_data_transformed)
+
+            #// insert request and prediction to the riskscore table
+
+            riskscore = Riskscore(
+                customerid=customer_id,
+                accountnumber=account_number,
+                transactiontype=transactiontype,
+                amount=amount,
+                accountbalance=account_balance,
+                receivername=receiver_name,
+                transactiontime=transaction_time,
+                riskscore=prediction
+            )
+            riskscore.save()
+
+            print("riskscore saved to data base")
+
+
+
+            #########################################################
 
             return JsonResponse({'prediction': prediction[0]})
         except Exception as e:
