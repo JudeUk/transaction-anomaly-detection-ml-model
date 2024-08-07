@@ -10,6 +10,7 @@ import pandas as pd
 from django.db import connection
 from .models import Riskscore
 from django.http import JsonResponse
+from django.core.serializers import serialize
 
 
 with open('rf_model_two.pkl', 'rb') as file:
@@ -174,4 +175,9 @@ def predict_transaction(request):
 
 def get_all_riskscore(request):
     transactions = Riskscore.objects.all().values()
+
+
+    # data = serialize('json', transactions)
+    
+    # return JsonResponse(data, safe=False)
     return JsonResponse(list(transactions), safe=False)
