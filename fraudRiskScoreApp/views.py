@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import render
 
 # Create your views here.
@@ -138,10 +139,27 @@ def predict_transaction(request):
             customer_id = data['CustomerID']
             transaction_time = pd.to_datetime(data['Transaction Time'])
             account_number = data['Account Number']
-            amount = data['Amount']
-            account_balance = data['Account Balance']
+            amount = Decimal(data['Amount'])
+            account_balance = Decimal(data['Account Balance'])
             receiver_name = data['Receiver Name']
             transactiontype = data['Transaction Type']
+            transactionid = data['TransactionID']
+
+
+
+
+
+
+            # data = json.loads(request.body)
+            # customer_id = data['CustomerID']
+            # transaction_time = pd.to_datetime(data['Transaction Time'])
+            # account_number = data['Account Number']
+            # amount = Decimal(data['Amount'])
+            # account_balance = Decimal(data['Account Balance'])
+            # receiver_name = data['Receiver Name']
+            # transactiontype = data['Transaction Type']
+
+
 
             # Load historical transactions from the database
             historical_transactions = get_historical_transactions()
@@ -158,6 +176,7 @@ def predict_transaction(request):
             data['daily_count'] = daily_count
             data['weekly_count'] = weekly_count
             data['monthly_count'] = monthly_count
+            
 
             input_data = pd.DataFrame([data])
 
@@ -167,9 +186,11 @@ def predict_transaction(request):
             # Make prediction
             prediction = loaded_model.predict(input_data_transformed)
 
+            prediction_decimal = Decimal(prediction[0])
+
             #// insert request and prediction to the riskscore table
 
-            riskscore = Riskscore(
+            riskscoredetails = Riskscore(
                 customerid=customer_id,
                 accountnumber=account_number,
                 transactiontype=transactiontype,
@@ -177,13 +198,12 @@ def predict_transaction(request):
                 accountbalance=account_balance,
                 receivername=receiver_name,
                 transactiontime=transaction_time,
-                riskscore=prediction
+                riskscore=prediction_decimal,
+                transactionid = transactionid
             )
-            riskscore.save()
+            riskscoredetails.save()
 
             print("riskscore saved to data base")
-
-
 
             #########################################################
 

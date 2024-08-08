@@ -13,6 +13,7 @@ class Riskscore(models.Model):
     receivername = models.CharField(max_length=100)
     transactiontime = models.DateTimeField()
     riskscore = models.DecimalField(max_digits=5, decimal_places=2)
+    transactionid = models.CharField(max_length=100,unique=True,default='00000000')
 
     class Meta:
         db_table = 'riskscore'
